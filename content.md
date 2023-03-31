@@ -171,6 +171,8 @@ TODO TODO TODO !!!
 exo et screenshot debug HTTP GET page web et post
 (ou dans Spring MVC)
 WeTransfer et / ou httpbin.org et autres stackoverflow ET debug (Spring MVC) mapping
+httpbin.org
+exemple : GET http://httpbin.org?nom=World
 ]::
 
 ---
@@ -312,8 +314,6 @@ http://localhost:8080/helloworld => Hello World !
 
 (ici, par simplification, **le HTML est écrit** directement par le code Java. En pratique, ce sera plutôt par un **langage dédié à la présentation** : JSP ou templates Thymeleaf)
 
-[TODO !!! OU image liant class, (name), url]::
-
 ---
 
 ## Descripteur de déploiement web.xml
@@ -394,20 +394,20 @@ void init(ServletConfig config) {
 protected void doGet(HttpServletRequest req,
                      HttpServletResponse resp)
         throws ServletException, IOException {
-    String name = req.getParameter("name"); // on récupère le paramètre passé en URL
+    String nom = req.getParameter("nom"); // on récupère le paramètre passé en URL
     
     resp.setContentType("text/html");
     PrintWriter pw = resp.getWriter();
     pw.println("<html>");
     pw.println("<body>");
-    pw.println("<h1>" + prefix + " " + name + " !</h1>");
+    pw.println("<h1>" + prefix + " " + nom + " !</h1>");
     pw.println("</body");
     pw.println("</html>");
     pw.close();
 }
 ```
 
-http://localhost:8080/helloworld?name=World => Hello World !
+http://localhost:8080/helloworld?nom=World => Hello World !
 
 ---
 
@@ -465,7 +465,7 @@ Pour que le code de ce servlet puisse accéder alors à la valeur entrée, il fa
 protected void doPost(HttpServletRequest req,
                      HttpServletResponse resp)
         throws ServletException, IOException {
-    String name = req.getParameter("name"); // on récupère le paramètre passé (en body de POST)
+    String nom = req.getParameter("nom"); // on récupère le paramètre passé (en body de POST)
     
     ...
 }
@@ -527,7 +527,7 @@ Il est possible d'appliquer MVC aux servlets. Leur code d'écriture HTML est dé
 @Override
 protected void doGet(HttpServletRequest req,
         HttpServletResponse resp) {
-    String nom = req.getAttribute("nom");
+    String nom = req.getParameter("nom");
     req.setAttribute("message", "Hello " + nom + " !");
     
     RequestDispatcher dispatcher = getServletContext()
@@ -544,7 +544,7 @@ protected void doGet(HttpServletRequest req,
     charset=US-ASCII" pageEncoding="US-ASCII"%>
 <html>
 <body>
-<h1><%=message%></h1>
+<h1><%=request.getAttribute("message")%></h1>
 </body>
 </html>
 ```
@@ -561,7 +561,7 @@ protected void doGet(HttpServletRequest req,
 
 </div>
 
-Mais... ce code de servlet reste lourd, et dans la JSP on peut toujours exécuter n'importe quel code Java ! *(une JSP est en fait transformée en servlet avant exécution)*
+NB. au lieu d'un *forward*, on ferait un *redirect* si on voulait que l'URL change côté client (authentification SSO, passage à une nouvelle version d'une application...)
 
 [
 pour la petite histoire, toute JSP est en fait transformée en servlet par le serveur d'application avant d'être exécutée
@@ -573,9 +573,9 @@ pour la petite histoire, toute JSP est en fait transformée en servlet par le se
 ## Conclusion - un grand ancien avec des limitations
 
 Un servlet permet d'écrire du code Java (doGet/Post()...) qui traite et répond à des appels HTTP. Mais...
-- avec un modèle d'appel HTTP qui est générique et non "métier" (HttpServletRequest/Response),
+- avec un modèle d'appel HTTP qui est générique et non "métier" (HttpServletRequest/Response), et une API peu pratique, entrainant un code lourd
 - une configuration de mapping (requête HTTP vers code) peu pratique (XML) et qui reste trop grossière (par préfixe d'URL : si 2 requêtes partagent le même chemin d'URL, elles doivent être traitées par la même méthode de servlet)
-- un langage de présentation (JSP) pas très adapté à MVC, comme on va le voir.
+- un langage de présentation (JSP) pas très adapté à MVC comme on va le voir, et qui permet trop de choses (et même d'exécuter n'importe quel code Java ! *une JSP est en fait transformée en servlet avant exécution)*
 
 ---
 
@@ -591,8 +591,16 @@ Spring MVC est le framework permettant de développer des applications web fourn
 - les configurations par défaut utiles 80% du temps,
 - serveur d'application Tomcat embarqué, jar exécutable...
 
-Il adopte le paradigme MVC (séparation des éléments Model, View, Controller), dispose d'un mapping de requêtes puissant et d'utilitaires facilitant de très nombreux cas d'usage.
+<div class="twocols">
 
+![height:100px center](binaries/Spring_Framework_Logo_2018.svg)
+
+<p class="break"></p>
+
+![height:100px center](binaries/spring_boot_logo_fTL08u_H_400x400.png)
+</div>
+
+Il adopte le paradigme MVC (séparation des éléments Model, View, Controller), dispose d'un mapping de requêtes puissant et d'utilitaires facilitant de très nombreux cas d'usage.
 A noter qu'il est également utilisable pour développer de pures APIs web et se pose alors en alternative au standard J2EE JAX-RS.
 
 ---
@@ -604,7 +612,7 @@ Une classe est déclarée comme un contrôleur Spring en utilisant l'annotation 
 ```java
 @Controller // pour des pages HTML dynamiques, ou sinon @RestController pour une API REST
 @RequestMapping(value = "/secu") // ou @RequestMapping("/secu")
-public class HelloWorldController {
+public class PatientController {
 
 //...
 
@@ -884,14 +892,14 @@ data- : https://stackoverflow.com/questions/31562007/why-do-we-need-prefix-data-
 
 - cette méthode de passer la variable ou expression à rendre en attribut est l'**avantage de Thymeleaf** : permettre un HTML aussi lisible que possible même sans le rendu.
 - Cela facilite le développement graphique (charte, mise en page) sous forme de pages statiques dans un premier temps (avant tout Controller), y compris par des designers **sans connaissances Thymeleaf** (*"Natural Templating"*).
-- En effet, en partant de pages web complètes mais encore statiques, il est facile de les rentre dynamiques. Il suffit d'y rajouter des attributs ```th:text``` (et si nécessaire pour cela des balises non impactantes telle <span>), avec une valeur pouvant être littérale dans un premier temps :
+- En effet, en partant de pages web complètes mais encore statiques, il est facile de les rentre dynamiques. Il suffit d'y rajouter des attributs ```th:text``` (et si nécessaire pour cela des balises non impactantes telle &lt;span&gt;), avec une valeur pouvant être littérale dans un premier temps :
 
 ```html
 <h1>Nom : Jean</h1> <!-- => -->
 ```
 
 ```html
-<h1>Nom : <span th:text="'Jean'">Jean</span></h1>
+<h1>Nom : <span th:text="'Jean!'">Jean</span></h1> <!-- un peu différente pour bien voir -->
 ```
 
 [
@@ -1001,7 +1009,7 @@ http://localhost:8080/ => Hello World !
 
 </div>
 
-- syntaxe : ```[[...]] ```déclenche le rendu de son contenu par Thymeleaf avec échappement (comme ```th:text```), ```[(...)]``` le fait sans échappement (comme ```th:utext```)
+- ```[[...]] ```déclenche le rendu de son contenu par Thymeleaf avec échappement (comme ```th:text```), ```[(...)]``` le fait sans échappement (comme ```th:utext```)
 - utile quand rajouter une balise HTML pose problème (casserait la mise en page...)
 - à éviter sinon, car moins lisible sans rendu et Natural Templating pas possible.
 
@@ -1034,7 +1042,7 @@ public class PatientController {
     <!-- => value="Jean" placeholder="John" -->
     <a th:href="@{/patients(id=${id})}">permalien 1</a>
     <!-- => href="/patients?id=1" -->
-    <a th:href="@{/patients/{id}}">permalien 2</a>
+    <a th:href="@{/patients/{id}(id=${id})}">permalien 2</a>
     <!-- => href="/patients/1" -->
   </form>
   </body>
@@ -1044,7 +1052,7 @@ public class PatientController {
 </div>
 
 - un attribut est injecté en le préfixant par ```th:``` (ou par ```th:attr``` si les attributs ne sont pas connus à l'avance)
-- une URL est injectée avec la syntaxe : ```@{prefix/{pathParamValue}(queryParam1=${value1},queryParam2=${value2}}```. Attention, si les valeurs sont plutôt des expressions Thymeleaf, il faut activer leur preprocessing en encadrant celles-ci (ou tout) par ```__...__``` ou ```|...|```
+- URLs : ```@{prefix/{pathParam}/suffixe(pathParam=${var2},queryParam1=${var2)}``` est la syntaxe qui les injecte. Attention, si les valeurs sont plutôt des expressions Thymeleaf, il faut activer leur preprocessing en encadrant celles-ci (ou tout) par ```__...__``` ou ```|...|```
 
 [
 @{} PAS ASSEZ pour path param, voir FAQ
@@ -1081,7 +1089,7 @@ public class PatientController {
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <body>
   <form id="save" method="post"
-        action="@{/patients/{id}}">
+        th:action="@{/patients/{id}(id=${id})}">
     <!-- => action="/patients/1" -->
     <input name="id" th:value="${id}" />
     <input name="nom" th:value="${nom}" />
@@ -1131,7 +1139,7 @@ public class PatientController {
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <body>
   <form id="save" method="post"
-        action="@{/patients/{patient.id}}">
+        th:action="@{/patients/{patient.id}(id=${patient.id})}">
     <!-- => action="/patients/1" -->
     <input name="id" th:value="${patient.id}" />
     <input name="nom" th:value="${patient.nom}" />
@@ -1162,8 +1170,8 @@ Une autre syntaxe est possible pour les formulaires, plus spécifique, incluant 
 ```html
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-<form id="save" method="post"
-      th:object="${patient}" action="@{/patients/{id}}">
+<form id="save" method="post" th:object="${patient}"
+      th:action="@{/patients/{id}(id=${patient.id})}">
   <!-- => action="/patients/1" -->
   <input name="id" id="id" th:value="*{id}" /><!--sans th:field-->
   <input th:field="*{nom}" /><!--=> name="id" id="id" value="1"-->
@@ -1202,7 +1210,7 @@ public class PatientController {
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
 <form id="save" method="post"
-      action="@{/patients/{id}}">
+      th:action="@{/patients/{id}(id=${patient.id})}">
   <input name="id" id="id" th:value="${patient.id}" />
   <input name="nom" id="nom" th:value="${patient.nom}" />
   <ul th:each="err : ${#fields.errors('nom')}"><!-- ou ('*') -->
@@ -1276,7 +1284,6 @@ http://localhost:8080/?nom=World
 <span th:text="${#servletContext.getAttribute('greet')}">
   Hello</span>
 <span th:text="${application.greet}">Hello</span>
-
 <span th:text="${#session.getAttribute('adjectif')}">Cool</span>
 <span th:text="${session.adjectif}">Cool</span>
 <span th:text="${#session.id}">
@@ -1285,7 +1292,6 @@ http://localhost:8080/?nom=World
 <span th:text="${#request.getParameter('nom')}">World</span>
 <span th:text="${param.msg}">World</span>
 <span th:text="${param.msg[0]}">World</span>
-
 <span th:text="${#request.getAttribute('suffix')}">!</span>
 <span th:text="${#request.getRequestURI()}">/</span>
 ```
@@ -1315,7 +1321,7 @@ TODO TODO TODO exo messages, voire localisation (ET NON i18n) ; voire #temporals
 <div class="twocols">
 
 ```properties
-# application[(_en/fr_FR)].properties
+# messages[(_en/fr_FR)].properties
 msg.hi=Hello
 msg.hi2=Greetings
 ```
@@ -1342,7 +1348,6 @@ http://localhost:8080/?nom=World
 ```html
 <span th:text="${#messages.msg('msg.hi')}">Hello</span>
 <span th:text="${#messages.msg('msg.hi2', 'KO')}">Hello</span>
-
 <span th:text="${#temporals.format(now, 'dd/MM/YYYY')}">
   21/12/2022</span>
 
