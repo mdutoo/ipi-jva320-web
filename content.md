@@ -80,11 +80,10 @@ div.twocols p.break {
 
 [
 TODO évaluation ; td, tp ; et méthodologies ?
+TODO prérequis : HTML, Git, Java (idéalement Spring, Maven, base de donneés), un IDE
 ]::
 
-Objectifs et compétences visés :
-
-(**en gras**, les travaux pratiques en séance et évalués)
+Objectifs et compétences visés : (**en gras**, les travaux pratiques en séance et évalués)
 
 - Serveur : Servlets, **Spring MVC**
   - **@Controller, @RequestMapping (@Get/Post...Mapping), @RequestParam, @PathVariable, databinding d'entité**
@@ -93,7 +92,17 @@ Objectifs et compétences visés :
   - **th:text et ${}, URLs avec @{...}, messages, #temporals, th:if/switch, th:each**
   - BONUS : erreurs, th:fragment
 
-& dates, évaluation et retours
+Prérequis : Bases Java, IDE ; bases Spring Boot et Git sont un plus
+
+& dates, évaluation (TD / TP) et retours
+
+---
+
+## Bibliographie
+
+- Documentation Thymeleaf, dont https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html et https://www.thymeleaf.org/doc/tutorials/3.1/thymeleafspring.html
+- Documentation Spring MVC : https://docs.spring.io/spring-framework/reference/web/webmvc.html
+- Ressorces documentaires Java en général sur les sujets, dont https://www.baeldung.com/spring-controller-vs-restcontroller et https://www.baeldung.com/thymeleaf-in-spring-mvc
 
 ---
 
@@ -151,8 +160,8 @@ Le cache côté client est possible notamment grâce aux garanties des methods H
 |--------|-----------------|------|------------|--------------|---------------|
 | GET    | Read            | *    | *          |              | *             |
 | POST   | Create          |      |            | *            | *             |
-| PUT    | Update          |      | *          | *            |               |
-| DELETE | Delete          |      | *          |              | *             |
+| PUT    | Update          |      | *          | *            | *             |
+| DELETE | Delete          |      | *          |              |               |
 
 
 [
@@ -221,7 +230,12 @@ Les servlets d'une application J2EE sont hébergés par son **serveur d'applicat
 Il est alors possible de développer les traitements de la partie serveur des interactions web
 soit en écrivant directement un servlet, étendant HttpServlet et surchargeant ses méthodes doGet/Post() au besoin,
 soit dans un framework web Java plus haut niveau lui-même basé sur les servlets.
-  ]::
+tuto :
+https://www3.ntu.edu.sg/home/ehchua/programming/java/JavaServlets.html
+3 tier archi web app packages :
+https://openclassrooms.com/en/courses/5684146-create-web-applications-efficiently-with-the-spring-boot-mvc-framework/6156961-organize-your-application-code-in-three-tier-architecture
+https://www.javaguides.net/2019/01/spring-mvc-project-structure.html
+]::
 
 Développer une application web en servlets revient à écrire un ou plusieurs **nouveau servlet qui étend HttpServlet, à surcharger ses méthodes doGet/Post()** au besoin et à y implémenter les traitements souhaités selon l'appel HTTP (demande de page web, création de données...).
 
@@ -343,6 +357,10 @@ Par exemple, on peut écrire dans init() et destroy() du code de connexion et d�
 ---
 
 ## Configuration avancée web.xml
+
+[TODO
+TODO Filter : middleware tel WSGI en python... DB session in view pattern ?
+]::
 
 <div class="twocols">
 
@@ -514,6 +532,10 @@ http://localhost:8080/?nom=World => Hello World !
 
 Ce standard J2EE apparaît en 1999 en réaction à MS ASP et PHP. Mais aujourd'hui d'autres frameworks lui sont préférés, aussi ce cours n'ira pas plus loin.
 
+[
+https://o7planning.org/10263/java-jsp
+]::
+
 ---
 
 ## MVC avec servlets et JSP
@@ -587,7 +609,7 @@ Un servlet permet d'écrire du code Java (doGet/Post()...) qui traite et répond
 
 ## Spring MVC
 
-Spring MVC est le framework permettant de développer des applications web fourni par le framework Spring et Sprint Boot, sa version "tout compris" avec :
+Spring MVC est le framework permettant de développer des applications web fourni par le framework Spring et Spring Boot, sa version "tout compris" avec :
 - les configurations par défaut utiles 80% du temps,
 - serveur d'application Tomcat embarqué, jar exécutable...
 
@@ -684,7 +706,9 @@ public String getPatient(@PathVariable(value = "id") String id) {
 }
 ```
 
-Cette notation est très fréquente dans les applications et APIs REST, où une URL est directement une référence vers une donnée (représentée par une Resource HTTP), dans laquelle les paramètres de chemin sont des bouts d'identifiants.
+Cette notation est très fréquente dans les applications et APIs REST, où
+- une URL est directement une référence vers une donnée (représentée par une Resource HTTP), avec des bouts d'identifiants comme paramètres de chemin
+- les éléments de chemin d'URL permettent de structurer les différents pans fonctionnels de l'API : /auth, /patients, /medecins...
 
 ---
 
@@ -738,6 +762,13 @@ NB. les alternatives pour faire du web en Java sont (outre JSP, standard obsolè
 - un autre moteur de rendu / templating, tel Freemarker
 - une architecture web de type AJAX, avec un serveur d'API REST en Spring MVC ou J2EE JAX-RS et une IHM HTML utilisant React.js, Angular...
 - NB. le standard J2EE comprend un framework MVC mais orienté composant : JSF, hélas plus très utilisé
+
+[
+doc :
+https://gayerie.dev/docs/spring/spring/spring_mvc.html
+https://www.javatpoint.com/spring-boot-thymeleaf-view
+https://o7planning.org/11545/spring-boot-and-thymeleaf
+]::
 
 ---
 
@@ -1052,11 +1083,15 @@ public class PatientController {
 </div>
 
 - un attribut est injecté en le préfixant par ```th:``` (ou par ```th:attr``` si les attributs ne sont pas connus à l'avance)
-- URLs : ```@{prefix/{pathParam}/suffixe(pathParam=${var2},queryParam1=${var2)}``` est la syntaxe qui les injecte. Attention, si les valeurs sont plutôt des expressions Thymeleaf, il faut activer leur preprocessing en encadrant celles-ci (ou tout) par ```__...__``` ou ```|...|```
+- URLs : ```@{prefix/{pathParam}/suffixe(pathParam=${var2},queryParam1=${var2})}``` est la syntaxe qui les injecte. Attention, si les valeurs sont plutôt des expressions Thymeleaf, il faut activer leur preprocessing en encadrant celles-ci (ou tout) par ```__...__``` ou ```|...|```
+
 
 [
 @{} PAS ASSEZ pour path param, voir FAQ
 th:attr moins bien, que pour dynamiques
+URLs :
+https://stackoverflow.com/questions/14938344/thymeleaf-construct-url-with-variable
+https://www.baeldung.com/spring-thymeleaf-request-parameters
 ]::
 
 ---
@@ -1158,6 +1193,9 @@ public class PatientController {
 [
 Une autre syntaxe est possible pour les formulaires, plus spécifique, incluant du databinding facilitant notamment l'affichage des erreurs de lecture des données envoyées (parsing). La syntaxe th:object="obj">...<span th:text="*{obj.anAttr}"> est utilisable indépendamment.
 @ModelAttribute
+https://www.codejava.net/frameworks/spring-boot/spring-boot-thymeleaf-form-handling-tutorial
+https://spring.io/guides/gs/handling-form-submission/
+https://springhow.com/thymeleaf-form-handling/
 ]::
 
 <!--
@@ -1183,9 +1221,9 @@ Une autre syntaxe est possible pour les formulaires, plus spécifique, incluant 
 
 ---
 
-## Accéder aux erreurs côté client et serveur
+## Erreurs de désérialisation - accès côté client et serveur
 
-- les erreurs de désérialisation s'accédent côté serveur en ajoutant un argument ```BindingResult```. Voire les erreurs d'annotations de validation Hibernate avec ```@Validation Patient patient``` (en ajoutant la dépendance à ```spring-boot-validation``` dans pom.xml et ```@NotBlank(message="Requis !") private String nom;``` dans Patient)
+- les erreurs de désérialisation s'accédent côté serveur en ajoutant un argument ```BindingResult```. Y compris les erreurs d'annotations de validation JPA / Hibernate en annotant l'objet métier désérialisé : ```@Valid Patient patient```
 - et côté client web pour affichage par ```#fields.errors('monChamp')``` (ou ```...(*)```) si ```th:field``` a été utilisé, et sinon en passant explictement le ```BindingResult``` à la vue
 
 <div class="twocols">
@@ -1236,6 +1274,110 @@ https://www.baeldung.com/thymeleaf-in-spring-mvc
 + Afficher les erreurs de validation : <ul><li th:each="err : ${#fields.errors('id')}" th:text="${err}" />...</ul>
 https://www.baeldung.com/spring-thymeleaf-error-messages
 -->
+---
+
+## RAPPEL Erreurs de validation JPA / Hibernate
+
+- en ajoutant la dépendance à ```spring-boot-validation``` dans pom.xml
+- il est possible d'annoter les champs des entités métier par des contraintes devant être validées
+- par exemple, pour lever une erreur "Requis !" si le champ nom est vide :
+
+<div class="twocols">
+
+```java
+@Entity
+public class PatientController {
+  // ...
+  @PostMapping(value = "/patients/1")
+  public String savePatient(@Valid Patient patient,
+        BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
+        System.out.println("problème de désérialisation");
+    }
+    patientService.save(patient);
+    ...
+```
+
+<p class="break"></p>
+
+```java
+@Entity
+public class PatientController {
+
+  ...
+
+  @NotBlank(message="Requis !")
+  private String nom;
+  ...
+```
+
+</div>
+
+---
+
+## Erreurs métier - retourner un statut HTTP 400 :
+
+Pour indiquer à Spring MVC qu'une exception représentant une erreur métier doit amener la réponse à avoir un statut HTTP d'erreur de la part du client, l'annoter :
+
+```java
+// PatientInvalideException.java :
+@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+public class PatientInvalideException extends Exception {
+    ...
+}
+
+// PatientController.java :
+@PostMapping("/patients/{id}")
+public Patient updatePatient(Patient patient) throws PatientInvalideException {
+  ...
+  if (!isPatientValid) {
+      // solution 1 :
+      throw new PatientInvalideException("Problème détecté : ...");
+  }
+  return patient;
+}
+```
+
+---
+
+## Erreurs techniques - retourner un statut autre que 500 :
+
+ResponseStatusException permet de convertir des exceptions techniques levées par le framework en HTTP, notamment avec un statut plus significatif que 500, comme ici 404 (Not Found) :
+
+```java
+// PatientController.java :
+@PostMapping("/patients/{id}")
+public Patient updatePatient(Patient patient){
+  try {
+      return patientService.updatePatient(patient);
+  } catch (EntityNotFoundException e)
+      // solution 2 :
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, patient.getNom() + " : pas trouvé");
+  }
+}
+```
+
+NB. cela permet aussi de renvoyer par exemple un statut 204 DELETED sur un DELETE dans une API REST.
+
+---
+
+## Append / prepend, exemple de mise en forme d'erreurs
+
+- L'attribut Thymeleaf ```th:classappend``` permet de rajouter une classe CSS sur un objet du DOM. Par exemple, voici comment mettre un champ de formulaire HTML ayant des erreurs en rouge (avec la classe Boostrap ```alert```) :
+
+```html
+<input name="nom" id="nom" th:value="${patient.nom}"
+       th:classappend="${#fields.hasErrors('nom') ? 'alert-danger'}" />
+```
+
+- L'attribut Thymeleaf ```th:attrappend``` permet la même chose pour tout attribut HTML, par exemple pour obtenir le même résultat :
+
+```html
+<input name="nom" id="nom" th:value="${patient.nom}"
+       th:attrappend="class=${#fields.hasErrors('nom') ? 'alert-danger'}" />
+```
+
+- L'attribut Thymeleaf ```th:attrprepend``` est similaire mais rajoute en tête d'attribut HTML.
 
 ---
 
@@ -1680,7 +1822,16 @@ Les fragments ont d'autres fonctionnalités encore plus puissantes pour facilite
 - "Flexible Layouts" (i.e. passage de **blocs de HTML en paramètre de fragment**)
 - Suppression de fragments 
   - ex. de données d'exemple (mock) au rendu i.e. en dehors de l'étape de design en Natural Templating
-  - peu utile, possible avec ex. affichage conditionnel ou flexible layouts...
-- Héritage de fragments (une page HTML entière comme fragment paramétré)
+(déjà possible avec affichage conditionnel ou flexible layouts)
+- Héritage de mise en page
+  - la structure de mise en page commune à toutes les pages HTML comme fragment paramétré
+par ses parties variables
 
 Si besoin, la documentation détaillée en est disponible à https://www.thymeleaf.org/doc/tutorials/3.1/usingthymeleaf.html#template-layout
+
+---
+
+## Conclusion
+
+- Spring MVC côté contrôleurs et Thymeleaf côté présentation permettent de réaliser des applications web en Java qui suivent l'approche "MVC serveur" (contrôleurs de type requête - réponse et génération du HTML côté serveur)
+- et sont appropriées quand leurs fonctionnalités doivent être simples et performantes, par exemple orientées contenu (et indexables par les moteurs de recherche !)

@@ -18,5 +18,4 @@ chmod -R 0777 . # anyone writes to, else error Failed converting Markdown. (EACC
 # NB. -u "node" does not solve it, but rather raises error su-exec: setgroups(101): Operation not permitted
 docker run --rm --init -v $PWD:/home/marp/app/ -e LANG=$LANG marpteam/marp-cli content.md --html --pdf --allow-local-files
 # --allow-local-files else warning advices to upload them
-# --allow-local-files else warning advices to upload them
 ```
